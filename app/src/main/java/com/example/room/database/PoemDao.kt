@@ -17,4 +17,7 @@ interface PoemDao {
 
     @get:Query("SELECT* from poem_table ORDER BY id ASC")
     val allNotes: LiveData<List<Poem>>
+
+    @Query("DELETE FROM poem_table WHERE id = :noteId")
+    fun deleteById(noteId: Int)
 }

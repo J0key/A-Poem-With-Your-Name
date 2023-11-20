@@ -32,4 +32,18 @@
         android:layout_marginStart="20dp"
         android:background="@color/text"
         />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/delete_btn"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:text="delete"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/update_btn"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:text="update"/>
+
+
 </LinearLayout>

@@ -3,6 +3,7 @@ package com.example.room.database
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
+import androidx.room.Room.databaseBuilder
 import androidx.room.RoomDatabase
 
 @Database(entities = [Poem::class], version = 1, exportSchema = false)
@@ -15,7 +16,7 @@ abstract class PoemRoomDatabase : RoomDatabase(){
         fun getDatabase(context: Context): PoemRoomDatabase?{
             if (INSTANCE == null){
                 synchronized(PoemRoomDatabase::class.java){
-                    INSTANCE = Room.databaseBuilder(
+                    INSTANCE = databaseBuilder(
                         context.applicationContext,
                         PoemRoomDatabase::class.java,
                         "poem_database"

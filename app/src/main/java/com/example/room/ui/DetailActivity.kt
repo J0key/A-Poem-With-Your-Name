@@ -3,7 +3,10 @@ package com.example.room.ui
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.SyncStateContract.Helpers.insert
 import android.view.View
+import android.widget.Toast
+import androidx.core.view.isVisible
 import com.example.room.R
 import com.example.room.database.Poem
 import com.example.room.database.PoemDao
@@ -14,12 +17,9 @@ import java.util.concurrent.Executors
 
 class DetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDetailBinding
-    private lateinit var mPoemDao: PoemDao
+    private lateinit var mNotesDao: PoemDao
     private lateinit var executorService: ExecutorService
-    private lateinit var PoemAdapter: TabAdapter
     private var updateId : Int = 0
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityDetailBinding.inflate(layoutInflater)
@@ -27,55 +27,97 @@ class DetailActivity : AppCompatActivity() {
         setContentView(binding.root)
         executorService = Executors.newSingleThreadExecutor()
         val db = PoemRoomDatabase.getDatabase(this)
-        mPoemDao = db!!.PoemDao()!!
+        mNotesDao = db!!.PoemDao()!!
+        var command = intent.getStringExtra("COMMAND")
 
-        PoemAdapter = TabAdapter(emptyList()) { selectedNote ->
-
-        }
 
         with(binding){
-            val intentToMainActivity = Intent(this@DetailActivity, MainActivity::class.java)
+
+            if(command=="UPDATE"){
+                binding.updatebtn.isVisible = true
+                binding.savebtn.isVisible = false
+                updateId = intent.getIntExtra("ID", 0)
+                var item_title = intent.getStringExtra("TITTLE")
+                var item_poem = intent.getStringExtra("POEM")
+
+                binding.titleEdit.setText(item_title.toString())
+                binding.poemEdit.setText(item_poem.toString())
+            }else{
+                binding.updatebtn.isVisible = false
+                binding.savebtn.isVisible = true
+            }
+
+
             savebtn.setOnClickListener(View.OnClickListener {
-                insert(
-                    Poem(
-                        title = titleEdit.text.toString(),
-                        poem = poemEdit.text.toString(),
+                if (validateInput()){
+                    insert(
+                        Poem(
+                            title = titleEdit.text.toString(),
+                            poem = poemEdit.text.toString()
+                        )
                     )
-                )
-                resetForm()
-                startActivity(intentToMainActivity)
+                    setEmptyField()
+                    val IntentToHome = Intent(this@DetailActivity, MainActivity::class.java)
+                    Toast.makeText(this@DetailActivity, "Berhasil Menambahkan Data", Toast.LENGTH_SHORT).show()
+                    startActivity(IntentToHome)
+                }else{
+                    Toast.makeText(this@DetailActivity, "Kolom Tidak Boleh Kosong !!", Toast.LENGTH_SHORT).show()
+                }
             })
+
+            updatebtn.setOnClickListener {
+                if(validateInput()){
+                    update(
+                        Poem(
+                            id = updateId,
+                            title = titleEdit.text.toString(),
+                            poem = poemEdit.text.toString()
+                        )
+                    )
+                    updateId = 0
+                    setEmptyField()
+                    val IntentToHome = Intent(this@DetailActivity, MainActivity::class.java)
+                    Toast.makeText(this@DetailActivity, "Berhasil Mengupdate Data", Toast.LENGTH_SHORT).show()
+                    startActivity(IntentToHome)
+                }else{
+                    Toast.makeText(this@DetailActivity, "Kolom Tidak Boleh Kosong !!", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
-
-    private fun getNotes(){
-        mPoemDao.allNotes.observe(this) { notes ->
-            PoemAdapter.setData(notes)
-        }
+    private fun insert(poem: Poem) {
+        executorService.execute { mNotesDao.insert(poem) }
     }
 
-    private fun insert(poem: Poem){
-        executorService.execute{mPoemDao.insert(poem)}
+    private fun delete(poem: Poem) {
+        executorService.execute { mNotesDao.delete(poem) }
     }
 
-    private fun update(poem: Poem){
-        executorService.execute{mPoemDao.update(poem)}
-    }
-
-    private fun delete(poem: Poem){
-        executorService.execute{mPoemDao.delete(poem)}
+    private fun update(poem: Poem) {
+        executorService.execute { mNotesDao.update(poem) }
     }
 
     override fun onResume() {
         super.onResume()
-        getNotes()
+//        getAllNotes()
     }
 
-    private fun resetForm(){
-        with(binding){
+    private fun setEmptyField() {
+        with(binding) {
             titleEdit.setText("")
             poemEdit.setText("")
         }
+    }
+
+    private fun validateInput(): Boolean {
+        with(binding) {
+            if(titleEdit.text.toString()!="" && poemEdit.text.toString()!="" ){
+                return true
+            }else{
+                return false
+            }
+        }
+
     }
 }

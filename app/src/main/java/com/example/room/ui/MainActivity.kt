@@ -5,6 +5,8 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isVisible
+import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.room.database.Poem
@@ -15,51 +17,63 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityMainBinding
-    private lateinit var poemAdapter: TabAdapter
-    private lateinit var mPoemDao: PoemDao
+    private lateinit var mNotesDao: PoemDao
     private lateinit var executorService: ExecutorService
+    private lateinit var ArrayData : LiveData<List<Poem>>
+    private var updateId: Int=0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityMainBinding.inflate(layoutInflater)
-        executorService = Executors.newSingleThreadExecutor()
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
-        poemAdapter = TabAdapter(emptyList()) { selectedPoem ->
-        }
-
+        executorService = Executors.newSingleThreadExecutor()
         val db = PoemRoomDatabase.getDatabase(this)
-        mPoemDao = db!!.PoemDao()!!
+        mNotesDao  = db!!.PoemDao()!!
+        ArrayData = db!!.PoemDao()!!.allNotes
+        getAllNotes()
 
         with(binding) {
-
-            val intentToNoteActivity = Intent(this@MainActivity, DetailActivity::class.java)
-
-            addBtn.setOnClickListener(View.OnClickListener {
-                startActivity(intentToNoteActivity)
-            })
-
-            rvPoem.layoutManager = GridLayoutManager(this@MainActivity,1)
-            rvPoem.adapter = poemAdapter
-            getNotes()
-
-            poemAdapter.onClickPoem = { clickedPoem ->
-                delete(clickedPoem)
+            addBtn.setOnClickListener{
+                val intentToInput = Intent(this@MainActivity, DetailActivity::class.java)
+                intentToInput.putExtra("COMMAND", "ADD")
+                startActivity(intentToInput)
             }
-
         }
-
     }
-    private fun getNotes() {
-        mPoemDao.allNotes.observe(this) { newData ->
-            poemAdapter.setData(newData)  // Assuming poemAdapter is an instance of TabAdapter
+
+    private fun getAllNotes() {
+        mNotesDao.allNotes.observe(this) { poems ->
+            if (poems.isNotEmpty()) { // Periksa apakah daftar catatan tidak kosong
+                binding.rvPoem.isVisible = true
+//                binding.textEmpty.isVisible = false
+                val recyclerAdapter = TabAdapter(poems)
+                binding.rvPoem.apply {
+                    layoutManager = LinearLayoutManager(this@MainActivity)
+                    setHasFixedSize(true)
+                    adapter = recyclerAdapter
+                }
+            }else{
+                binding.rvPoem.isVisible = false
+//                binding.textEmpty.isVisible = true
+            }
         }
+    }
+
+    private fun insert(poem: Poem) {
+        executorService.execute { mNotesDao.insert(poem) }
     }
 
     private fun delete(poem: Poem) {
-        executorService.execute { mPoemDao.delete(poem) }
+        executorService.execute { mNotesDao.delete(poem) }
     }
 
+    private fun update(poem: Poem) {
+        executorService.execute { mNotesDao.update(poem) }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getAllNotes()
+    }
 }
