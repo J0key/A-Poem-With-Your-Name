@@ -2,48 +2,96 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/background"
     android:orientation="vertical"
-    android:id="@+id/list_item"
-    >
+    android:id="@+id/list_item">
 
-    <TextView
-        android:id="@+id/title_detail"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Title"
         android:layout_marginStart="20dp"
-        android:fontFamily="@font/poppins_bold"
-        android:textSize="19sp"/>
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="15dp"
+        >
+
+        <TextView
+            android:id="@+id/title_detail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Title"
+            android:layout_centerVertical="true"
+            android:textColor="@color/text"
+            android:fontFamily="@font/poppins_bold"
+            android:textSize="20sp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/delete_btn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            app:iconTint="@color/button"
+            android:backgroundTint="@color/button"
+            android:background="@drawable/ic_delete"
+            android:layout_toLeftOf="@id/update_btn"
+            android:text="delete"
+            />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/update_btn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_centerVertical="true"
+            app:iconTint="@color/button"
+            android:backgroundTint="@color/button"
+            android:background="@drawable/ic_edit"
+            android:layout_alignParentEnd="true"
+            />
+
+
+
+    </RelativeLayout>
+
+
 
     <TextView
         android:id="@+id/poem_detail"
         android:layout_width="match_parent"
-        android:layout_height="155dp"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
         android:layout_marginStart="20dp"
-        android:background="@drawable/border"/>
-
-    <TextView
-        android:layout_marginTop="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginStart="20dp"
-        android:background="@color/text"
+        android:fontFamily="@font/poppins_semibold"
+        android:textSize="19sp"
+        android:textColor="@color/text"
         />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/delete_btn"
-        android:layout_width="120dp"
-        android:layout_height="50dp"
-        android:text="delete"/>
+<!--    <TextView-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="2dp"-->
+<!--        android:layout_marginEnd="20dp"-->
+<!--        android:layout_marginStart="20dp"-->
+<!--        android:background="@color/text"-->
+<!--        />-->
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/update_btn"
-        android:layout_width="120dp"
-        android:layout_height="50dp"
-        android:text="update"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="15dp"
+        >
+
+
+
+
+
+    </RelativeLayout>
+
+
 
 
 </LinearLayout>

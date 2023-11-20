@@ -45,8 +45,8 @@ class TabAdapter (var listPoem: List<Poem>?): RecyclerView.Adapter<TabAdapter.My
         val db = PoemRoomDatabase.getDatabase(holder.itemView.context)
         mNotesDao = db!!.PoemDao()!!
 
-        holder.tittle.text = "tittle : ${listPoem?.get(position)?.title}"
-        holder.poem.text = "description : ${listPoem?.get(position)?.poem}"
+        holder.tittle.text = "${listPoem?.get(position)?.title}"
+        holder.poem.text = "${listPoem?.get(position)?.poem}"
 
         holder.btnUpdate.setOnClickListener {
             val intentToDetail = Intent(holder.itemView.context, DetailActivity::class.java)
